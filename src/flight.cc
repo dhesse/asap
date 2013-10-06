@@ -181,7 +181,8 @@ namespace asap {
       }
       else if (tmp == "seats"){
 	std::getline(file, tmp);
-	for(std::sregex_token_iterator i(tmp.begin(), tmp.end(), re_comma, -1), end; i != end; ++i){
+	for(std::sregex_token_iterator i(tmp.begin(), tmp.end(), re_comma, -1), 
+	      end; i != end; ++i){
 	  std::list<detail::SeatCreator> group;
 	  for(std::sregex_token_iterator j(i->first, i->second, re_ws, -1); j != end; ++j)
 	    if (j->first != j->second) // avoid extra white space
@@ -204,9 +205,12 @@ namespace asap {
       seats_by_row_[cat].resize(rows_[cat]);
       for (int i = 0; i < rows_[cat]; ++i){
 	int row_number = i + offset_[cat];
-	// introduce a weight penalty depending on how far
-	// off-center a seat is
-	double weight = detail::weight_penalty*abs(i - 0.5*rows_[cat])/(0.5*rows_[cat]);
+	// introduce a weight penalty depending on how far off-center
+	// a seat is 
+	// TODO: maybe add a center_passengers keyword to each class
+	//       to do something better here than (number of rows) / 2
+	double weight = detail::weight_penalty*abs(i - 0.5*rows_[cat])
+	  / (0.5*rows_[cat]);
 	// mark exit seats
 	bool is_exit = std::find(emergency_[cat].begin(), 
 				 emergency_[cat].end(), 
@@ -216,13 +220,15 @@ namespace asap {
 	if (i % 2)
 	  for (auto creator = seat_creators[cat].begin();
 	       creator != seat_creators[cat].end(); ++creator){
-	    empty_seats_by_id_[cat].push_back(creator->make_seat(i + o.second, id++, is_exit, weight));
+	    empty_seats_by_id_[cat].push_back(creator->make_seat(i + o.second, 
+								 id++, is_exit, weight));
 	    seats_by_row_[cat][i].push_back(empty_seats_by_id_[cat].back());
 	  }
 	else
 	  for (auto creator = seat_creators[cat].rbegin();
 		 creator != seat_creators[cat].rend(); ++creator){
-	    empty_seats_by_id_[cat].push_back(creator->make_seat(i + o.second, id++, is_exit, weight));
+	    empty_seats_by_id_[cat].push_back(creator->make_seat(i + o.second,
+								 id++, is_exit, weight));
 	    seats_by_row_[cat][i].push_front(empty_seats_by_id_[cat].back());
 	  }
       }
@@ -287,6 +293,9 @@ namespace asap {
       double new_score = detail::match(g.begin(), g.end(), current.begin(), current.end());
       // additional penalty for sitting directly next 
       // to a passenger from another group
+      // TODO: By looking at occupied seats one could find the min
+      //       distance to an occupied seat and do something more
+      //       sophisticated here
       if ((last+1) != empty_seats.end() && last != empty_seats.end())
 	if ((*(last+1))->get_id() - 1 != (*last)->get_id())
 	  new_score += detail::neighbor_seat_occupied_penalty;

@@ -51,41 +51,15 @@ namespace asap {
       bool is_valid_cat(const std::string& str) const {
 	return cat_map_.find(str) != cat_map_.end();
       }
-      const TravelCategory& cat(const std::string& str) const {
-	if (!is_valid_cat(str))
-	  throw NoSuchCategory();
-	return cat_map_.find(str)->second;
-      }
-      std::string desc(const SeatType& t) const {
-	auto i = seat_map_.find(t);
-	if (i != seat_map_.end())
-	  return i->second;
-	else
-	  return "";
-      }
-      std::string desc(const TravelCategory& t) const {
-	auto i = rev_map_.find(t);
-	if (i != rev_map_.end())
-	  return i->second;
-	else
-	  return "";
-      }
+      const TravelCategory& cat(const std::string& str) const ;
+      std::string desc(const SeatType& t) const;
+      std::string desc(const TravelCategory& t) const;
       static const CatMap & instance() {
 	static CatMap inst_;
 	return inst_;
       }
     private:
-      CatMap() {
-	cat_map_["economy"] = TravelCategory::kEconomy;
-	cat_map_["business"] = TravelCategory::kBusiness;
-	cat_map_["first"] = TravelCategory::kFirst;
-	rev_map_[TravelCategory::kEconomy] = "economy";
-	rev_map_[TravelCategory::kBusiness] = "business" ;
-	rev_map_[TravelCategory::kFirst] = "first";
-	seat_map_[SeatType::kWindow] = "W";
-	seat_map_[SeatType::kAisle] = "A";
-	seat_map_[SeatType::kOther] = "";
-      }
+      CatMap();
       std::map<std::string, TravelCategory> cat_map_;
       std::map<TravelCategory, std::string> rev_map_;
       std::map<SeatType, std::string> seat_map_;

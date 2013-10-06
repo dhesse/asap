@@ -30,8 +30,7 @@ namespace asap {
 				     return penalty(s, p) < penalty(t, p); });
       return std::make_pair(iter, penalty(*iter, p));
     }
-    // this works optimal only if [firstp, lastp) is
-    // sorted using sort_most_restrictive_first
+
     template <typename Iter1, typename Iter2>
     double match(Iter1 firstp, Iter1 lastp, Iter2 firsts, Iter2 lasts){
       double result = 0;
@@ -42,16 +41,12 @@ namespace asap {
 	auto j = find_best_match(firsts, lasts, *firstp);
 	const double& score = j.second;
 	const std::shared_ptr<Seat>& seat_ptr = *(j.first);
-#ifdef MOREDEBUG
-	std::cout << "(" << (*firstp)->get_name() << ","
-		  << detail::CatMap::instance().desc((*firstp)->get_seat_type()) 
-		  << "," << (*firstp)->is_minor() << ") -> ";
-	std::cout << seat_ptr->get_info() << "penalty: " << j.second << std::endl;
-#endif
-	if (seat_ptr->get_id() < min_id) min_id = seat_ptr->get_id();
-	if (seat_ptr->get_id() > max_id) max_id = seat_ptr->get_id();
+	// update scoring for match
 	result += score;
 	result += seat_ptr->get_intrinsic_cost();
+	// update max/min
+	if (seat_ptr->get_id() < min_id) min_id = seat_ptr->get_id();
+	if (seat_ptr->get_id() > max_id) max_id = seat_ptr->get_id();
 	std::swap(*(j.first), *firsts);
 	++firsts;
 	++firstp;
@@ -59,12 +54,43 @@ namespace asap {
       }
       // penalty for non-contiguous seating
       result += max_id - min_id - count + 1;
-#ifdef MOREDEBUG
-      std::cout << "max = " << max_id << ", min = " << min_id << ", count = " << count << std::endl;
-      std::cout << "TOTAL PENALTY: " << result << std::endl;
-#endif
       return result;
     }
+    
+    std::string CatMap::desc(const SeatType& t) const {
+      auto i = seat_map_.find(t);
+      if (i != seat_map_.end())
+	return i->second;
+      else
+	return "";
+    }
+
+    const TravelCategory& CatMap::cat(const std::string& str) const {
+      if (!is_valid_cat(str))
+	throw NoSuchCategory();
+      return cat_map_.find(str)->second;
+    }
+
+    std::string CatMap::desc(const TravelCategory& t) const {
+      auto i = rev_map_.find(t);
+      if (i != rev_map_.end())
+	return i->second;
+      else
+	return "";
+    }
+
+    CatMap::CatMap() {
+      cat_map_["economy"] = TravelCategory::kEconomy;
+      cat_map_["business"] = TravelCategory::kBusiness;
+      cat_map_["first"] = TravelCategory::kFirst;
+      rev_map_[TravelCategory::kEconomy] = "economy";
+      rev_map_[TravelCategory::kBusiness] = "business" ;
+      rev_map_[TravelCategory::kFirst] = "first";
+      seat_map_[SeatType::kWindow] = "W";
+      seat_map_[SeatType::kAisle] = "A";
+      seat_map_[SeatType::kOther] = "";
+    }
+    
     // this works optimal only if [firstp, lastp) is
     // sorted using sort_most_restrictive_first
     template <typename Iter1, typename Iter2>
@@ -80,15 +106,15 @@ namespace asap {
 	const double& score = j.second;
 	const std::shared_ptr<Seat>& seat_ptr = *(j.first);
 #ifdef DEBUG
-	std::cout << "(" << (*firstp)->get_name() << ","
-		  << detail::CatMap::instance().desc((*firstp)->get_seat_type()) 
-		  << "," << (*firstp)->is_minor() << ") -> ";
-	std::cout << seat_ptr->get_info() << "penalty: " << j.second << std::endl;
-	if (seat_ptr->get_id() < min_id) min_id = seat_ptr->get_id();
-	if (seat_ptr->get_id() > max_id) max_id = seat_ptr->get_id();
 	cost += score;
 	cost += seat_ptr->get_intrinsic_cost();
 	++count;
+	std::cout << "(" << (*firstp)->get_name() << ","
+		  << detail::CatMap::instance().desc((*firstp)->get_seat_type()) 
+		  << "," << (*firstp)->is_minor() << ") -> ";
+	std::cout << seat_ptr->get_info() << " penalty: " << j.second << std::endl;
+	if (seat_ptr->get_id() < min_id) min_id = seat_ptr->get_id();
+	if (seat_ptr->get_id() > max_id) max_id = seat_ptr->get_id();
 #endif
 	seat_ptr->set_passenger(*firstp);
 	std::swap(*(j.first), *firsts);

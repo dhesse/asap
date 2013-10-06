@@ -39,12 +39,40 @@ namespace asap {
 
   namespace detail { // helper classes/functions
     
+    ////////////////////////////////////////////////////////////
+    //
+    // Extract the next word in lower-case from a file.
+    //
+    // Example:
+    //   std::string word;
+    //   std::ifstream inf("input.txt");
+    //   get_lower(inf, word);
+    //   std::cout << "First word is " << word << std::endl;
+    //
+    // \author Dirk Hesse <herr.dirk.hesse@gmail.com>
+    // \date Sun Oct  6 17:54:13 2013
+
+
     inline void get_lower(std::ifstream &in_f, std::string& s){
       in_f >> s;
       std::transform(s.begin(), s.end(), s.begin(), tolower);
     }
-    // singleton to map strings -> seat categories
-    // and seat_types -> strings
+
+    ////////////////////////////////////////////////////////////
+    //
+    // Singleton to get sensible names for seat types and travel
+    // categories, as well as travel categories from strings. This is
+    // mostly used for pretty-printing and reading input files.
+    //
+    // Example:
+    //   SeatType s = SeatType::kWindow;
+    //   std::cout << "sitting on a " 
+    //             << detail::CatMap::instance().desc(s)
+    //             << " seat!" << std::endl;
+    //
+    // \author Dirk Hesse <herr.dirk.hesse@gmail.com>
+    // \date Sun Oct  6 17:55:49 2013
+
     class CatMap {
     public:
       class NoSuchCategory : public std::exception { };
@@ -64,6 +92,20 @@ namespace asap {
       std::map<TravelCategory, std::string> rev_map_;
       std::map<SeatType, std::string> seat_map_;
     };
+
+    ////////////////////////////////////////////////////////////
+    //
+    // Factory class used to create seats of a certain type.
+    //
+    // Example:
+    //   SeatCreator c("A");
+    //   set_type(SeatType::kWindow);
+    //   auto seat = make_seat(23, 42, false, 1.5);
+    //   // seat is now shared_ptr<Seat>
+    //   // with label "23A", id == 42, etc.
+    //
+    // \author Dirk Hesse <herr.dirk.hesse@gmail.com>
+    // \date Sun Oct  6 17:58:33 2013
 
     class SeatCreator {
     public:

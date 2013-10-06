@@ -177,7 +177,7 @@ namespace asap {
 	int row_number = i + offset_[cat];
 	// introduce a weight penalty depending on how far
 	// off-center a seat is
-	double weight = 5.0*abs(i - 0.5*rows_[cat])/(0.5*rows_[cat]);
+	double weight = detail::weight_penalty*abs(i - 0.5*rows_[cat])/(0.5*rows_[cat]);
 	// mark exit seats
 	bool is_exit = std::find(emergency_[cat].begin(), 
 				 emergency_[cat].end(), 
@@ -187,14 +187,14 @@ namespace asap {
 	if (i % 2)
 	  for (auto creator = seat_creators[cat].begin();
 	       creator != seat_creators[cat].end(); ++creator){
-	    seats_by_id_[cat].push_back(creator->make_seat(i + o.second, id++, is_exit, weight));
-	    seats_by_row_[cat][i].push_back(seats_by_id_[cat].back());
+	    empty_seats_by_id_[cat].push_back(creator->make_seat(i + o.second, id++, is_exit, weight));
+	    seats_by_row_[cat][i].push_back(empty_seats_by_id_[cat].back());
 	  }
 	else
 	  for (auto creator = seat_creators[cat].rbegin();
 		 creator != seat_creators[cat].rend(); ++creator){
-	    seats_by_id_[cat].push_back(creator->make_seat(i + o.second, id++, is_exit, weight));
-	    seats_by_row_[cat][i].push_front(seats_by_id_[cat].back());
+	    empty_seats_by_id_[cat].push_back(creator->make_seat(i + o.second, id++, is_exit, weight));
+	    seats_by_row_[cat][i].push_front(empty_seats_by_id_[cat].back());
 	  }
       }
     }
@@ -242,22 +242,40 @@ namespace asap {
     AssignResult result = AssignResult::kOk;
     const TravelCategory& cat = g.cat(); // shorthand
     g.sort();
-    if (seats_by_id_[cat].size() < g.size())
+    // another shorthand
+    std::vector<std::shared_ptr<Seat> >& empty_seats = empty_seats_by_id_[cat];
+    // report overbooking
+    if (empty_seats.size() < g.size())
       result = AssignResult::kOverbooked;
-    auto first = seats_by_id_[cat].begin();
-    auto last = seats_by_id_[cat].begin() + std::min(g.size(), seats_by_id_[cat].size());
+    // find best set of empty seats
+    auto first = empty_seats.begin();
+    auto last = empty_seats.begin() + std::min(g.size(), empty_seats.size());
     std::deque<std::shared_ptr<Seat> > best_so_far(first, last); // reminer: assings [first, last)
     std::deque<std::shared_ptr<Seat> > current = best_so_far;
     double best_score = detail::match(g.begin(), g.end(), current.begin(), current.end());
-    while (last != seats_by_id_[cat].end()){
+    while (last != empty_seats.end()){
       current.assign(++first, ++last);
       double new_score = detail::match(g.begin(), g.end(), current.begin(), current.end());
+      // additional penalty for sitting directly next 
+      // to a passenger from another group
+      if ((last+1) != empty_seats.end() && last != empty_seats.end())
+	if ((*(last+1))->get_id() - 1 != (*last)->get_id())
+	  new_score += detail::neighbor_seat_occupied_penalty;
+      if (first != empty_seats.begin())
+	if ((*(first-1))->get_id() + 1 != (*first)->get_id())
+	  new_score += detail::neighbor_seat_occupied_penalty;
       if (new_score < best_score){
 	best_so_far.assign(first, last);
 	best_score = new_score;
       }
     }
     detail::assign(g.begin(), g.end(), best_so_far.begin(), best_so_far.end());
+    // safely remove occupied seats from vector
+    empty_seats.erase(std::remove_if(empty_seats.begin(),
+				     empty_seats.end(),
+				     [](const std::shared_ptr<Seat>& s){
+				       return s->get_passenger(); }),
+		      empty_seats.end());
 #ifdef DEBUG
     std::cout << "Assigned with score " << best_score << std::endl;
 #endif

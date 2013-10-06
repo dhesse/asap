@@ -130,7 +130,9 @@ namespace asap {
     // \date Sun Oct  6 18:01:06 2013
 
     const double wrong_seat_penalty = 1;
-    const double wrong_sec_penalty = 10;
+    const double wrong_sec_penalty = 100;
+    const double neighbor_seat_occupied_penalty = 20;
+    const double weight_penalty = 1.;
 
     double penalty (const std::shared_ptr<Seat>&, const std::shared_ptr<Passenger> &);
 
@@ -216,6 +218,7 @@ namespace asap {
     void push (const std::string& name, const SeatType& type, bool minor) {
       passengers_.push_back(std::make_shared<Passenger>(name, type, minor));
     }
+    void empty() { passengers_.resize(0); }
     typedef std::vector<std::shared_ptr<Passenger> >::iterator iterator;
     typedef std::vector<std::shared_ptr<Passenger> >::const_iterator const_iterator;
     iterator begin() { return passengers_.begin(); }
@@ -243,7 +246,7 @@ namespace asap {
     std::map<TravelCategory, int> rows_;
     std::map<TravelCategory, std::list<int> > emergency_;
     std::map<TravelCategory, int> offset_;
-    std::map<TravelCategory, std::vector<std::shared_ptr<Seat> > > seats_by_id_;
+    std::map<TravelCategory, std::vector<std::shared_ptr<Seat> > > empty_seats_by_id_;
     std::map<TravelCategory, std::vector<std::deque<std::shared_ptr<Seat> > > > seats_by_row_;
     std::string flight_number_;
   };

@@ -10,4 +10,10 @@ int main() {
   g.push("Ringo", asap::SeatType::kWindow, false);
   f.checkin(g);
   f.show();
+  g.empty();
+  g.push("Joey", asap::SeatType::kWindow, false);
+  g.push("Johnny", asap::SeatType::kAisle, true);
+  g.push("Dee", asap::SeatType::kOther, false);
+  f.checkin(g);
+  f.show();
 }

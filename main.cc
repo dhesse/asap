@@ -9,11 +9,9 @@ int main() {
   g.push("George", asap::SeatType::kOther, false);
   g.push("Ringo", asap::SeatType::kWindow, false);
   f.checkin(g);
-  f.show();
-  g.empty();
-  g.push("Joey", asap::SeatType::kWindow, false);
-  g.push("Johnny", asap::SeatType::kAisle, true);
-  g.push("Dee", asap::SeatType::kOther, false);
-  f.checkin(g);
+  asap::PassengerGroup a("passengers1.asc");
+  asap::PassengerGroup b("passengers2.asc");
+  f.checkin(a);
+  f.checkin(b);
   f.show();
 }

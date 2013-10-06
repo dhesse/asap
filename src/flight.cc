@@ -69,6 +69,15 @@ namespace asap {
       return cat_map_.find(str)->second;
     }
 
+
+    const SeatType& CatMap::type(const std::string& str) const {
+      if (!is_valid_type(str)){
+	std::cerr << "Seat type not recognized: " << std::endl;
+	throw NoSuchCategory();
+      }
+      return type_map_.find(str)->second;
+    }
+    
     std::string CatMap::desc(const TravelCategory& t) const {
       auto i = rev_map_.find(t);
       if (i != rev_map_.end())
@@ -81,6 +90,9 @@ namespace asap {
       cat_map_["economy"] = TravelCategory::kEconomy;
       cat_map_["business"] = TravelCategory::kBusiness;
       cat_map_["first"] = TravelCategory::kFirst;
+      type_map_["window"] = SeatType::kWindow;
+      type_map_["aisle"] = SeatType::kAisle;
+      type_map_["none"] = SeatType::kOther;
       rev_map_[TravelCategory::kEconomy] = "economy";
       rev_map_[TravelCategory::kBusiness] = "business" ;
       rev_map_[TravelCategory::kFirst] = "first";
@@ -128,6 +140,23 @@ namespace asap {
     }
   } // namespace detail
   
+  PassengerGroup::PassengerGroup(const std::string& file){
+    std::ifstream inf(file);
+    std::string tmp;
+    std::string name;
+    SeatType st;
+    detail::get_lower(inf, tmp);
+    cat_ = detail::CatMap::instance().cat(tmp);
+    while (inf.good()) {
+      inf >> name;
+      detail::get_lower(inf, tmp);
+      st = detail::CatMap::instance().type(tmp);
+      detail::get_lower(inf, tmp);
+      bool is_minor = tmp == "minor";
+      push(name, st, is_minor);
+    }
+  }
+
   void Flight::init (std::ifstream& file) {
     TravelCategory cat;
     std::regex re_ws("\\W+"); // sarch for whitepace -- separating seats

@@ -79,7 +79,11 @@ namespace asap {
       bool is_valid_cat(const std::string& str) const {
 	return cat_map_.find(str) != cat_map_.end();
       }
+      bool is_valid_type(const std::string& str) const {
+	return type_map_.find(str) != type_map_.end();
+      }
       const TravelCategory& cat(const std::string& str) const ;
+      const SeatType& type(const std::string& str) const ;
       std::string desc(const SeatType& t) const;
       std::string desc(const TravelCategory& t) const;
       static const CatMap & instance() {
@@ -89,6 +93,7 @@ namespace asap {
     private:
       CatMap();
       std::map<std::string, TravelCategory> cat_map_;
+      std::map<std::string, SeatType> type_map_;
       std::map<TravelCategory, std::string> rev_map_;
       std::map<SeatType, std::string> seat_map_;
     };
@@ -215,6 +220,7 @@ namespace asap {
   class PassengerGroup {
   public:
     explicit PassengerGroup(TravelCategory cat) : cat_(cat) { }
+    explicit PassengerGroup(const std::string& file);
     void push (const std::string& name, const SeatType& type, bool minor) {
       passengers_.push_back(std::make_shared<Passenger>(name, type, minor));
     }

@@ -9,8 +9,6 @@ namespace asap {
 	result += wrong_seat_penalty;
       if (p->is_minor() && s->is_emergency_exit_seat())
 	result += wrong_sec_penalty;
-      if (s->get_passenger())
-	result += overbook_penalty;
       return result;
     }
     template <typename Iter>

@@ -122,10 +122,15 @@ namespace asap {
       SeatType type_;
     };
 
-    // penalty costs
+    ////////////////////////////////////////////////////////////
+    //
+    // Penalty costs. Adjust to modify the program's behavior.
+    //
+    // \author Dirk Hesse <herr.dirk.hesse@gmail.com>
+    // \date Sun Oct  6 18:01:06 2013
+
     const double wrong_seat_penalty = 1;
     const double wrong_sec_penalty = 10;
-    const double overbook_penalty = 1000;
 
     double penalty (const std::shared_ptr<Seat>&, const std::shared_ptr<Passenger> &);
 

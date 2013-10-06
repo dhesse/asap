@@ -204,6 +204,17 @@ namespace asap {
     std::shared_ptr<Passenger> passenger_;
   };
 
+  ////////////////////////////////////////////////////////////
+  //
+  // Passenger class. A passenger is characterized by
+  //   - Name (string).
+  //   - Seating preference, i.e. window, aisle, none.
+  //   - Wether or not he/she is an minor, e.g. won't be allowed to
+  //     sit on seats at emergency exits.
+  //
+  // \author Dirk Hesse <herr.dirk.hesse@gmail.com>
+  // \date Sun Oct  6 22:45:21 2013
+
   class Passenger {
   public:
     Passenger(std::string name, SeatType type, bool minor) :
@@ -217,6 +228,18 @@ namespace asap {
     bool is_minor_;
   };
   
+  ////////////////////////////////////////////////////////////
+  //
+  // A group of people traveling together. Groups will be preferredly
+  // seated together. Everyone in a given group must have the same
+  // travel statuse, i.e. first, business, or economy.
+  //
+  // Example: c.f. Flight
+  //
+  // \author Dirk Hesse <herr.dirk.hesse@gmail.com>
+  // \date Sun Oct  6 22:47:41 2013
+
+
   class PassengerGroup {
   public:
     explicit PassengerGroup(TravelCategory cat) : cat_(cat) { }
@@ -238,6 +261,20 @@ namespace asap {
     TravelCategory cat_;
     std::vector<std::shared_ptr<Passenger> > passengers_;
   };
+
+  ////////////////////////////////////////////////////////////
+  //
+  // Flight class. Airplane information will be read from an input
+  // file. A sample input file is provided.
+  //
+  // Example:
+  //   Flight oceanic_815("flight.asc");
+  //   PassengerGroup g(TravelCategory::kEconomy);
+  //   g.push("Hugo", SeatType::kWindow, false);
+  //   Flight::AssignResult r = oceanic_815.checkin(g);
+  //
+  // \author Dirk Hesse <herr.dirk.hesse@gmail.com>
+  // \date Sun Oct  6 22:48:57 2013
 
   class Flight {
   public:

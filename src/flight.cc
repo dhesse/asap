@@ -60,7 +60,7 @@ namespace asap {
 	++count;
       }
       // penalty for non-contiguous seating
-      result += max_id - min_id - count + 1;
+      result += detail::non_contiguous_penalty * (max_id - min_id - count + 1);
       return result;
     }
     

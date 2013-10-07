@@ -195,6 +195,7 @@ namespace asap {
     void set_passenger(const std::shared_ptr<Passenger>& p) {
       passenger_ = p;
     }
+    const std::string& get_desc() const { return desc_; }
   private:
     SeatType type_;
     int id_;
@@ -265,7 +266,10 @@ namespace asap {
   ////////////////////////////////////////////////////////////
   //
   // Flight class. Airplane information will be read from an input
-  // file. A sample input file is provided.
+  // file. A sample input file is provided. There are three ways to
+  // check in passengers, using overloads of the checkin function. The
+  // modes are: In a group, as individual, letting the algorithm
+  // choose a seat and choosing a seat number manually.
   //
   // Example:
   //   Flight oceanic_815("flight.asc");
@@ -278,12 +282,19 @@ namespace asap {
 
   class Flight {
   public:
-    enum class AssignResult {kOk, kOverbooked};
+    enum class AssignResult {kOk, kOverbooked, kSeatUnavailable};
     class FileNotFoundError : public std::exception { };
     class InputFileFormatError : public std::exception { };
     explicit Flight(std::string file);
     void show();
+    // Check in a group of passengers
     AssignResult checkin(PassengerGroup&);
+    // Check in an idividual passenger
+    AssignResult checkin(TravelCategory, const std::string& name,
+			 SeatType, bool is_minor = false);
+    // Check in an idividual passenger, on a given seat
+    AssignResult checkin(TravelCategory, const std::string& name,
+			 bool is_minor, const std::string& seat_no);
   private:
     void init(std::ifstream&);
     std::map<TravelCategory, int> rows_;

@@ -7,6 +7,7 @@
 // \date Mon Oct  7 13:14:26 2013
 
 #include <flight.hpp>
+#include <regex>
 
 namespace asap {
   namespace detail {
@@ -167,8 +168,8 @@ namespace asap {
 
   void Flight::init (std::ifstream& file) {
     TravelCategory cat;
-    std::regex re_ws("\\W+"); // sarch for whitepace -- separating seats
-    std::regex re_comma(","); // sarch for commas -- separating seat
+    static std::regex re_ws("\\W+"); // sarch for whitepace -- separating seats
+    static std::regex re_comma(","); // sarch for commas -- separating seat
     // groups
     int total_rows = 1; // start seat numbering with one
     std::string tmp;
@@ -325,5 +326,44 @@ namespace asap {
 #endif
     return result;
   }
+  Flight::AssignResult Flight::checkin(TravelCategory cat, const std::string& name,
+				       SeatType seat, bool is_minor) {
+    PassengerGroup g(cat);
+    g.push(name, seat, is_minor);
+    return checkin(g);
+  }
 
+  Flight::AssignResult Flight::checkin(TravelCategory cat, const std::string& name,
+				       bool is_minor, const std::string& seat_no){
+    // shorthand
+    const std::vector<std::shared_ptr<Seat> >& seats = empty_seats_by_id_[cat];
+    if (seats.empty())
+      return AssignResult::kOverbooked;
+    // this seat could be off by the number of seats in the
+    // corrsponding row, since the seats are ordered by id, not by
+    // descritive name, but we use this anyway, because we can do a
+    // fast binary search zero in on the right seat here
+    auto seat = std::lower_bound(seats.begin(), seats.end(), seat_no,
+		 [](const std::shared_ptr<Seat>& s,const std::string& no){ 
+                     return std::lexicographical_compare(s->get_desc().begin(),
+		     s->get_desc().end(), no.begin(), no.end()); });
+    static std::regex re("(\\d+)"); // re to extract row number
+    std::smatch m;
+    if (!std::regex_search(seat_no, m, re))
+      return AssignResult::kSeatUnavailable;
+    int row = std::stoi(m[1]) - offset_[cat];
+    int rowsize = seats_by_row_[cat][row].size();
+    seat = (seat - seats.begin() < rowsize) ? seats.begin() : seat - rowsize;
+    seat = std::find_if(seat, seats.end(),
+			[&seat_no](const std::shared_ptr<Seat>& s){
+			  return s->get_desc() == seat_no;});
+    if (seat != seats.end())
+      (*seat)->set_passenger(std::make_shared<Passenger>
+			     (name, SeatType::kOther, is_minor));
+    else {
+      std::cerr << "seat not found\n";
+      return AssignResult::kSeatUnavailable;
+    }
+    return AssignResult::kOk;
+  }
 }// namespace asap

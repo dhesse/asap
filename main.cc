@@ -2,7 +2,7 @@
 
 int main() {
   asap::Flight f("sample_flight.asc");
-  //f.show();
+  f.checkin(asap::TravelCategory::kEconomy, "Ben", false, "6A");
   asap::PassengerGroup g(asap::TravelCategory::kEconomy);
   g.push("Kate", asap::SeatType::kWindow, false);
   g.push("Jack", asap::SeatType::kAisle, false);

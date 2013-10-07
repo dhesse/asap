@@ -1,17 +1,20 @@
 #include <flight.hpp>
 
+using namespace asap;
+
 int main() {
-  asap::Flight f("sample_flight.asc");
-  f.checkin(asap::TravelCategory::kEconomy, "Ben", false, "6A");
-  asap::PassengerGroup g(asap::TravelCategory::kEconomy);
-  g.push("Kate", asap::SeatType::kWindow, false);
-  g.push("Jack", asap::SeatType::kAisle, false);
-  g.push("Hugo", asap::SeatType::kOther, false);
-  g.push("James", asap::SeatType::kWindow, false);
+  Flight f("sample_flight.asc");
+  f.checkin(TravelCategory::kEconomy, "Ben", false, "6A");
+  PassengerGroup g(TravelCategory::kEconomy);
+  g.push("Kate", SeatType::kWindow, false);
+  g.push("Jack", SeatType::kAisle, false);
+  g.push("Hugo", SeatType::kOther, false);
+  g.push("James", SeatType::kWindow, false);
   f.checkin(g);
-  asap::PassengerGroup a("passengers1.asc");
-  asap::PassengerGroup b("passengers2.asc");
+  PassengerGroup a("passengers1.asc");
+  PassengerGroup b("passengers2.asc");
   f.checkin(a);
   f.checkin(b);
+  f.checkin(TravelCategory::kEconomy, "Boone", SeatType::kWindow);
   f.show();
 }

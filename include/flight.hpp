@@ -137,18 +137,64 @@ namespace asap {
     const double wrong_seat_penalty = 1;
     const double wrong_sec_penalty = 100;
     const double neighbor_seat_occupied_penalty = 20;
-    const double weight_penalty = 1.;
+    const double weight_penalty = 1;
+    const double non_contiguous_penalty = 1;
 
-    double penalty (const std::shared_ptr<Seat>&, const std::shared_ptr<Passenger> &);
+
+    ////////////////////////////////////////////////////////////
+    //
+    // Penalty function for a given matching
+    //
+    // \author Dirk Hesse <herr.dirk.hesse@gmail.com>
+    // \date Mon Oct  7 21:40:50 2013
+
+    double penalty (const std::shared_ptr<Seat>&,
+		    const std::shared_ptr<Passenger> &);
+
+    ////////////////////////////////////////////////////////////
+    //
+    // Sort continer-of-pointers to passenger, most restricive ones
+    // (minor, windw preference), (minor, aisle preference) ... first.
+    //
+    // \author Dirk Hesse <herr.dirk.hesse@gmail.com>
+    // \date Mon Oct  7 21:41:40 2013
 
     template <typename Iter>
     void sort_most_restrictive_first (Iter first, Iter last);
     
+    ////////////////////////////////////////////////////////////
+    //
+    // Find the best match for a given passenger out of a container of
+    // seats. Returns a pair <iterator, cost>, the iterator pointing
+    // to the best match, the cost is the penalty cost of the given
+    // match.
+    //
+    // \author Dirk Hesse <herr.dirk.hesse@gmail.com>
+    // \date Mon Oct  7 21:42:36 2013
+
     template <typename Iter>
-    std::pair<Iter, double> find_best_match (Iter first, Iter last, const std::shared_ptr<Passenger>& p);
+    std::pair<Iter, double> find_best_match (Iter first, Iter last,
+					     const std::shared_ptr<Passenger>& p);
   
+    ////////////////////////////////////////////////////////////
+    //
+    // Calculate the penalty of the best match between a given
+    // container of passengers and a container of seats.
+    //
+    // \author Dirk Hesse <herr.dirk.hesse@gmail.com>
+    // \date Mon Oct  7 21:43:51 2013
+
     template <typename Iter1, typename Iter2>
     double match(Iter1 firstp, Iter1 lastp, Iter2 firsts, Iter2 lasts);
+
+    ////////////////////////////////////////////////////////////
+    //
+    // Assign the lowest-cost match between passengers and seats to
+    // the seats, via the set_passenger method of the seats.
+    //
+    // \author Dirk Hesse <herr.dirk.hesse@gmail.com>
+    // \date Mon Oct  7 21:44:31 2013
+
     template <typename Iter1, typename Iter2>
     void assign(Iter1 firstp, Iter1 lastp, Iter2 firsts, Iter2 lasts);
 

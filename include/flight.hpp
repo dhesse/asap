@@ -291,6 +291,7 @@ namespace asap {
     std::map<TravelCategory, int> offset_;
     std::map<TravelCategory, std::vector<std::shared_ptr<Seat> > > empty_seats_by_id_;
     std::map<TravelCategory, std::vector<std::deque<std::shared_ptr<Seat> > > > seats_by_row_;
+    std::map<TravelCategory, int> center_at_;
     std::string flight_number_;
   };
 }

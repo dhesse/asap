@@ -1,3 +1,11 @@
+////////////////////////////////////////////////////////////
+//
+// ASAP - Airtravel seat assigment program
+//        IMPLEMENTATION
+//
+// \author Dirk Hesse <herr.dirk.hesse@gmail.com>
+// \date Mon Oct  7 13:14:26 2013
+
 #include <flight.hpp>
 
 namespace asap {
@@ -196,6 +204,7 @@ namespace asap {
 	seat_creators[cat].front().set_type(SeatType::kWindow);
 	seat_creators[cat].back().set_type(SeatType::kWindow);
       }
+      else if (tmp == "center") file >> center_at_[cat];
       else continue; // ignore unknown commands
       
     }
@@ -207,10 +216,7 @@ namespace asap {
 	int row_number = i + offset_[cat];
 	// introduce a weight penalty depending on how far off-center
 	// a seat is 
-	// TODO: maybe add a center_passengers keyword to each class
-	//       to do something better here than (number of rows) / 2
-	double weight = detail::weight_penalty*abs(i - 0.5*rows_[cat])
-	  / (0.5*rows_[cat]);
+	double weight = detail::weight_penalty*abs(row_number - center_at_[cat]);
 	// mark exit seats
 	bool is_exit = std::find(emergency_[cat].begin(), 
 				 emergency_[cat].end(), 

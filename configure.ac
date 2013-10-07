@@ -20,6 +20,6 @@ AC_PROG_CXX
 # Checks for library functions.
 
 
-AC_OUTPUT(Makefile)
+AC_OUTPUT(Makefile test/Makefile)
 
 AC_OUTPUT

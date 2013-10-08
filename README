@@ -1,0 +1,46 @@
+=========================================
+Air-travel Seat Assignment Program - ASAP
+=========================================
+
+Program to assign seats on an airplane to passengers.
+
+Quick start guide
+=================
+
+To build, issue the following commands
+
+./autogen.sh
+./configure
+make
+
+The program called main will assign the passengers given in the main
+code, in passengers1.asc, and in passengers2.asc to the flight
+specified in sample_flight.asc. There is a rudimentary unit test
+included, which may be executed via
+
+make check
+
+Passenger
+=========
+
+A passenger has the following properties:
+
+- Name (string).
+- Seat type preference.
+- Is or is not a minor, e.g. eligible for a seat at an emergency
+  exit.
+
+Passengers can be created 'by hand' as in main.cc, or in a file,
+c.f. passengers1.asc, passengers2.asc. Usually, passengers are grouped
+in a PassengerGroup, which in addition to a list of passengers has a
+travel category, i.e. first, business, economy.
+
+Flight
+======
+
+A flight is specified in a file, containing the flight number and for
+each category (first, business, economy) the number of rows, the seat
+layout (seat labels, e.g. "A", "B", ... separated by white space rows
+separated by commas), the row numbers being emergency exit rows, and
+the desired center-of mass, for plane load balancing. See
+sample_flight.asc for an exhaustive example.

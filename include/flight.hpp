@@ -343,12 +343,20 @@ namespace asap {
 			 bool is_minor, const std::string& seat_no);
   private:
     void init(std::ifstream&);
+    // no. of rows in each category
     std::map<TravelCategory, int> rows_;
+    // the row no.s being an emergency exit rows
     std::map<TravelCategory, std::list<int> > emergency_;
+    // the numering offest to translate from abs. row number
+    // to index in seats_by_row
     std::map<TravelCategory, int> offset_;
+    // emty seats, sorted by id
     std::map<TravelCategory, std::vector<std::shared_ptr<Seat> > > empty_seats_by_id_;
+    // all seats, by row number, in ascending label order
     std::map<TravelCategory, std::vector<std::deque<std::shared_ptr<Seat> > > > seats_by_row_;
+    // where the center of mass should be
     std::map<TravelCategory, int> center_at_;
+    // descriptive flight number
     std::string flight_number_;
   };
 }

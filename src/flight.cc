@@ -257,7 +257,7 @@ namespace asap {
 	  if (seat->get_passenger())
 	    std::cout << seat->get_passenger()->get_name();
 	  else
-	    std::cout << "NONE";
+	    std::cout << "----";
 	  std::cout << ", ";
 	}
 	std::cout << std::endl;
